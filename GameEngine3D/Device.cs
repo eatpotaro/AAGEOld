@@ -62,6 +62,20 @@ namespace GameEngine3D
             }
         }
 
+        // Called to put a pixel on screen at a specific X,Y coordinates
+        public void PutPixel2D(int x, int y, Color4 color)
+        {
+            // As we have a 1-D Array for our back buffer
+            // we need to know the equivalent cell in 1-D based
+            // on the 2D coordinates on screen
+            var index = (x + y * bmp.PixelWidth) * 4;
+
+            backBuffer[index] = (byte)(color.Blue * 255);
+            backBuffer[index + 1] = (byte)(color.Green * 255);
+            backBuffer[index + 2] = (byte)(color.Red * 255);
+            backBuffer[index + 3] = (byte)(color.Alpha * 255);
+        }
+
         // This method is called to clear the back buffer with a specific color
         public void Clear(byte r, byte g, byte b, byte a)
         {
@@ -90,6 +104,40 @@ namespace GameEngine3D
             {
                 // Drawing a point
                 PutPixel((int)point.X, (int)point.Y, point.Z, color);
+            }
+        }
+
+        public void DrawPoint2D(Vector2 point, Color4 color)
+        {
+            // Clipping what's visible on screen
+            if (point.X >= 0 && point.Y >= 0 && point.X < bmp.PixelWidth && point.Y < bmp.PixelHeight)
+            {
+                // Drawing a yellow point
+                PutPixel2D((int)point.X, (int)point.Y, color);
+            }
+        }
+
+        public void DrawBline(Vector2 point0, Vector2 point1, Color4 color)
+        {
+            int x0 = (int)point0.X;
+            int y0 = (int)point0.Y;
+            int x1 = (int)point1.X;
+            int y1 = (int)point1.Y;
+
+            var dx = Math.Abs(x1 - x0);
+            var dy = Math.Abs(y1 - y0);
+            var sx = (x0 < x1) ? 1 : -1;
+            var sy = (y0 < y1) ? 1 : -1;
+            var err = dx - dy;
+
+            while (true)
+            {
+                DrawPoint2D(new Vector2(x0, y0), color);
+
+                if ((x0 == x1) && (y0 == y1)) break;
+                var e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x0 += sx; }
+                if (e2 < dx) { err += dx; y0 += sy; }
             }
         }
 
@@ -145,6 +193,18 @@ namespace GameEngine3D
                 WorldCoordinates = point3dWorld
             };
         }
+        public Vector2 Project2D(Vector3 coord, Matrix transMat)
+        {
+            // transforming the coordinates
+            var point = Vector3.TransformCoordinate(coord, transMat);
+            // The transformed coordinates will be based on coordinate system
+            // starting on the center of the screen. But drawing on screen normally starts
+            // from top left. We then need to transform them again to have x:0, y:0 on top left.
+            var x = point.X * bmp.PixelWidth + bmp.PixelWidth / 2.0f;
+            var y = -point.Y * bmp.PixelHeight + bmp.PixelHeight / 2.0f;
+            return (new Vector2(x, y));
+        }
+
 
         // drawing line between 2 points from left to right
         // papb -> pcpd
@@ -310,15 +370,12 @@ namespace GameEngine3D
         {
             // To understand this part, please read the prerequisites resources
             var viewMatrix = Matrix.LookAtLH(camera.Position, camera.Target, Vector3.UnitY);
-            var projectionMatrix = Matrix.PerspectiveFovLH(0.78f,
-                                                           (float)renderWidth / renderHeight,
-                                                           0.01f, 1.0f);
+            var projectionMatrix = Matrix.PerspectiveFovLH(0.78f, (float)renderWidth / renderHeight, 0.01f, 1.0f);
 
             foreach (Mesh mesh in meshes)
             {
                 // Beware to apply rotation before translation 
-                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) *
-                                  Matrix.Translation(mesh.Position);
+                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * Matrix.Translation(mesh.Position);
 
                 var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
@@ -419,6 +476,114 @@ namespace GameEngine3D
 
             return meshes.ToArray();
         }
+
+        public Vector3[] Bresenham3D(float x1, float y1, float z1, float x2, float y2, float z2)
+        {
+            var ListOfPoints = new List<Vector3>();
+            ListOfPoints.Add(new Vector3(x1, y1, z1));
+            int xs = 0;
+            int ys = 0;
+            int zs = 0;
+            var dx = Math.Abs(x2 - x1);
+            var dy = Math.Abs(y2 - y1);
+            var dz = Math.Abs(z2 - z1);
+            if (x2 > x1)
+            {
+                xs = 1;
+            }
+            else
+            {
+                xs = -1;
+            }
+            if (y2 > y1)
+            {
+                ys = 1;
+            }
+            else
+            {
+                ys = -1;
+            }
+            if (z2 > z1)
+            {
+                zs = 1;
+            }
+            else
+            {
+                zs = -1;
+            }
+            // Driving axis is X-axis"
+            if (dx >= dy && dx >= dz)
+            {
+                var p1 = 2 * dy - dx;
+                var p2 = 2 * dz - dx;
+                while (x1 != x2)
+                {
+                    x1 += xs;
+                    if (p1 >= 0)
+                    {
+                        y1 += ys;
+                        p1 -= 2 * dx;
+                    }
+                    if (p2 >= 0)
+                    {
+                        z1 += zs;
+                        p2 -= 2 * dx;
+                    }
+                    p1 += 2 * dy;
+                    p2 += 2 * dz;
+                    ListOfPoints.Add(new Vector3(x1, y1, z1));
+                }
+            }
+            else if (dy >= dx && dy >= dz)
+            {
+                // Driving axis is Y-axis"
+                var p1 = 2 * dx - dy;
+                var p2 = 2 * dz - dy;
+                while (y1 != y2)
+                {
+                    y1 += ys;
+                    if (p1 >= 0)
+                    {
+                        x1 += xs;
+                        p1 -= 2 * dy;
+                    }
+                    if (p2 >= 0)
+                    {
+                        z1 += zs;
+                        p2 -= 2 * dy;
+                    }
+                    p1 += 2 * dx;
+                    p2 += 2 * dz;
+                    ListOfPoints.Add(new Vector3(x1, y1, z1));
+                }
+            }
+            else
+            {
+                // Driving axis is Z-axis"
+                var p1 = 2 * dy - dz;
+                var p2 = 2 * dx - dz;
+                while (z1 != z2)
+                {
+                    z1 += zs;
+                    if (p1 >= 0)
+                    {
+                        y1 += ys;
+                        p1 -= 2 * dz;
+                    }
+                    if (p2 >= 0)
+                    {
+                        x1 += xs;
+                        p2 -= 2 * dz;
+                    }
+                    p1 += 2 * dy;
+                    p2 += 2 * dx;
+                    ListOfPoints.Add(new Vector3(x1, y1, z1));
+                }
+            }
+
+            return ListOfPoints.ToArray();
+        }
+
 
         // 2D vector cross product – uses only X and Y coordinates, ignores Z
 
