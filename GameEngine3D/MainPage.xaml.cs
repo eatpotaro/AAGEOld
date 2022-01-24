@@ -99,25 +99,28 @@ namespace GameEngine3D
             }
 
 
-            Vector3[] points = device.Bresenham3D(1, -1, -10, 0, 0, 0);
+            
+        }
 
+        void Line(Vector3 Point0, Vector3 Point1, Color4 color)
+        {
             var viewMatrix = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
             var projectionMatrix = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
-            var worldMatrix = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(points[0]);
+            var worldMatrix = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(Point0);
 
             var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-            Vector2 PixelPlace = device.Project2D(points[0], transformMatrix);
+            Vector2 PixelPlace = device.Project2D(Point0, transformMatrix);
 
             var viewMatrixend = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
             var projectionMatrixend = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
-            var worldMatrixend = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(points[points.Length - 1]);
+            var worldMatrixend = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(Point1);
 
             var transformMatrixend = worldMatrix * viewMatrix * projectionMatrix;
 
-            Vector2 PixelEndPlace = device.Project2D(points[points.Length - 1], transformMatrixend);
+            Vector2 PixelEndPlace = device.Project2D(Point1, transformMatrixend);
 
-            device.DrawBline(PixelPlace, PixelEndPlace, Color.Green);
+            device.DrawBline(PixelPlace, PixelEndPlace, color);
 
             //device.DrawBline(new Vector2(320, 240), new Vector2(10, 0));
             //device.DrawPoint(new Vector3(320, 240, -10), Color.Green);
