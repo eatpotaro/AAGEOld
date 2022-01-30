@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Windows.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GameEngine3D
 {
@@ -327,11 +328,11 @@ namespace GameEngine3D
 
                     if (y < p2.Y)
                     {
-                        ProcessScanLine(data, v1, v3, v1, v2, color * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v3, v1, v2, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
                     }
                     else
                     {
-                        ProcessScanLine(data, v1, v3, v2, v3, color * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v3, v2, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
                     }
                 }
             }
@@ -354,11 +355,11 @@ namespace GameEngine3D
 
                     if (y < p2.Y)
                     {
-                        ProcessScanLine(data, v1, v2, v1, v3, color * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v2, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
                     }
                     else
                     {
-                        ProcessScanLine(data, v2, v3, v1, v3, color * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v2, v3, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
                     }
                 }
             }

@@ -31,10 +31,10 @@ namespace GameEngine3D
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Light lightTemp = new Light(new Vector3(0f, 0f, 10f), 5f, 50f);
-            Light lightTemp2 = new Light(new Vector3(-50, 0f, 10f), 5f, 50f);
+            Light lightTemp = new Light(new Vector3(0f, 0f, 10f), 1f, 50f, 0f, 1f, 1f, 1f);
+            //Light lightTemp2 = new Light(new Vector3(-50, 0f, 10f), 5f, 50f);
             lights.Add(lightTemp);
-            lights.Add(lightTemp2);
+            //lights.Add(lightTemp2);
             // Choose the back buffer resolution here
             WriteableBitmap bmp = new WriteableBitmap(640, 480);
 
@@ -44,9 +44,9 @@ namespace GameEngine3D
             device = new Device(bmp);
             
             meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes);
-            meshes[0].Position += new Vector3(3f, 0f, 0f);
+            meshes[0].Position += new Vector3(-3f, 0f, 0f);
             meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE.babylon", meshes);
-            meshes[1].Rotation += new Vector3(0f, 0f, 0f);
+            meshes[0].Position += new Vector3(0f, 0f, 0f);
 
             player.Position = new Vector3(0, 0, 20f);
             mera.Position = player.Position;
@@ -87,7 +87,6 @@ namespace GameEngine3D
         void Update()
         {
             mera.Position += new Vector3(0f, 0f, 0f);
-            mera.Target = player.Rotation;
 
             if (meshes != null)
             {
@@ -99,29 +98,28 @@ namespace GameEngine3D
             }
 
 
-            Vector3[] points = device.Bresenham3D(1, -1, -10, 0, 0, 0);
+            DrawLine(0, 0, 0, 2, 2, 0, Color.GreenYellow);
+        }
 
+        void DrawLine(float x0, float y0, float z0, float x1, float y1, float z1, Color4 color)
+        {
             var viewMatrix = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
             var projectionMatrix = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
-            var worldMatrix = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(points[0]);
+            var worldMatrix = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(new Vector3(x0, y0, z0));
 
             var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-            Vector2 PixelPlace = device.Project2D(points[0], transformMatrix);
+            Vector2 PixelPlace = device.Project2D(new Vector3(x0, y0, z0), transformMatrix);
 
             var viewMatrixend = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
             var projectionMatrixend = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
-            var worldMatrixend = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(points[points.Length - 1]);
+            var worldMatrixend = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(new Vector3(x1, y1, z1));
 
             var transformMatrixend = worldMatrix * viewMatrix * projectionMatrix;
 
-            Vector2 PixelEndPlace = device.Project2D(points[points.Length - 1], transformMatrixend);
+            Vector2 PixelEndPlace = device.Project2D(new Vector3(x1, y1, z1), transformMatrixend);
 
-            device.DrawBline(PixelPlace, PixelEndPlace, Color.Green);
-
-            //device.DrawBline(new Vector2(320, 240), new Vector2(10, 0));
-            //device.DrawPoint(new Vector3(320, 240, -10), Color.Green);
-            //device.PutPixel(0, 0, 0, Color.Green);
+            device.DrawBline(PixelPlace, PixelEndPlace, color);
         }
     }
 }
