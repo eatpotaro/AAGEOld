@@ -119,6 +119,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoxCollider.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="Light.cs" />
@@ -126,6 +127,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Mesh.cs" />
+    <Compile Include="PhysicsItem.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

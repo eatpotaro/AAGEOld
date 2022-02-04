@@ -31,10 +31,10 @@ namespace GameEngine3D
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Light lightTemp = new Light(new Vector3(0f, 0f, 10f), 1f, 50f, 0f, 1f, 1f, 1f);
-            //Light lightTemp2 = new Light(new Vector3(-50, 0f, 10f), 5f, 50f);
+            Light lightTemp = new Light(new Vector3(0f, 0f, 10f), 1f, 50f, 1f, 1f, 1f, 1f);
+            Light lightTemp2 = new Light(new Vector3(-3, 0f, 10f), 1f, 50f, 1f, 1f, 1f, 1f);
             lights.Add(lightTemp);
-            //lights.Add(lightTemp2);
+            lights.Add(lightTemp2);
             // Choose the back buffer resolution here
             WriteableBitmap bmp = new WriteableBitmap(640, 480);
 
@@ -98,8 +98,10 @@ namespace GameEngine3D
             }
 
 
-            DrawLine(0, 0, 0, 2, 2, 0, Color.GreenYellow);
+            //DrawLine(0, 0, 0, 2, 2, 0, Color.GreenYellow);
         }
+
+            
 
         void DrawLine(float x0, float y0, float z0, float x1, float y1, float z1, Color4 color)
         {

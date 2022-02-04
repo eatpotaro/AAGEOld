@@ -328,11 +328,11 @@ namespace GameEngine3D
 
                     if (y < p2.Y)
                     {
-                        ProcessScanLine(data, v1, v3, v1, v2, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v3, v1, v2, new Color4(color.Red * light.RIntesnsity, color.Green * light.GIntesnsity, color.Blue * light.BIntesnsity, color.Alpha * light.AIntensity) * Math.Max(light.Intensity / (distance / 2), 1f));
                     }
                     else
                     {
-                        ProcessScanLine(data, v1, v3, v2, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v3, v2, v3, new Color4(color.Red * light.RIntesnsity, color.Green * light.GIntesnsity, color.Blue * light.BIntesnsity, color.Alpha * light.AIntensity) * Math.Max(light.Intensity / (distance / 2), 1f));
                     }
                 }
             }
@@ -355,11 +355,11 @@ namespace GameEngine3D
 
                     if (y < p2.Y)
                     {
-                        ProcessScanLine(data, v1, v2, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v1, v2, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Green * light.GIntesnsity, color.Blue * light.BIntesnsity, color.Alpha * light.AIntensity) * Math.Max(light.Intensity / (distance / 2), 1f));
                     }
                     else
                     {
-                        ProcessScanLine(data, v2, v3, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Blue * light.BIntesnsity, color.Green * light.GIntesnsity, color.Alpha * light.AIntensity) * (light.Intensity / (distance / 2)));
+                        ProcessScanLine(data, v2, v3, v1, v3, new Color4(color.Red * light.RIntesnsity, color.Green * light.GIntesnsity, color.Blue * light.BIntesnsity, color.Alpha * light.AIntensity) * Math.Max(light.Intensity / (distance / 2), 1f));
                     }
                 }
             }
