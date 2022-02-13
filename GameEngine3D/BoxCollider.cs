@@ -6,8 +6,16 @@ using System.Threading.Tasks;
 
 namespace GameEngine3D
 {
-    class BoxCollider
+    public class BoxCollider
     {
+        public void UpdateSize(Mesh m)
+        {
 
+        }
+
+        public void CheckCollisions(Mesh m)
+        {
+
+        }
     }
 }

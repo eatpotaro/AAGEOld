@@ -24,17 +24,17 @@ namespace GameEngine3D
     public sealed partial class MainPage : Page
     {
         private Device device;
-        private Mesh[] meshes;
+        private Mesh[] meshes = new Mesh[0];
         Camera mera = new Camera();
         public List<Light> lights = new List<Light>();
         Player player = new Player(Vector3.Zero, Vector3.Zero, 10f);
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            Light lightTemp = new Light(new Vector3(0f, 0f, 10f), 1f, 50f, 1f, 1f, 1f, 1f);
-            Light lightTemp2 = new Light(new Vector3(-3, 0f, 10f), 1f, 50f, 1f, 1f, 1f, 1f);
+            Light lightTemp = new Light(new Vector3(0f, 0f, 50f), 1f, 5000000f, 1f, 1f, 1f, 1f);
+            //Light lightTemp2 = new Light(new Vector3(-3, 0f, 10f), 1f, 50f, 1f, 1f, 1f, 1f);
             lights.Add(lightTemp);
-            lights.Add(lightTemp2);
+            //lights.Add(lightTemp2);
             // Choose the back buffer resolution here
             WriteableBitmap bmp = new WriteableBitmap(640, 480);
 
@@ -43,9 +43,9 @@ namespace GameEngine3D
 
             device = new Device(bmp);
             
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
             meshes[0].Position += new Vector3(-3f, 0f, 0f);
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE.babylon", meshes);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
             meshes[0].Position += new Vector3(0f, 0f, 0f);
 
             player.Position = new Vector3(0, 0, 20f);
@@ -58,7 +58,12 @@ namespace GameEngine3D
         // Rendering loop handler
         void CompositionTarget_Rendering(object sender, object e)
         {
-            device.Clear(0, 0, 0, 255);
+            device.Clear(60, 60, 60, 255);
+
+            foreach(Mesh m in meshes)
+            {
+                m.Physics.UpdatePhysics();
+            }
 
             Update();
 
@@ -97,7 +102,10 @@ namespace GameEngine3D
                 }
             }
 
-
+            if(meshes[0].Position.Y <= -5)
+            {
+                meshes[0].Position = new Vector3(-3f, 20f, 0f);
+            }
             //DrawLine(0, 0, 0, 2, 2, 0, Color.GreenYellow);
         }
 

@@ -43,11 +43,20 @@
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\bin\10.0.19041.0\XamlCompiler\Microsoft.UI.Xaml.Markup.winmd">
       <PackagePath>Microsoft.UI.Xaml.Markup.winmd</PackagePath>
     </AppxPackagedFile>
+    <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\Assets\Textures\Suzanne.jpg">
+      <PackagePath>Assets\Textures\Suzanne.jpg</PackagePath>
+    </AppxPackagedFile>
     <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\Assets\Mesh\MONKE.babylon">
       <PackagePath>Assets\Mesh\MONKE.babylon</PackagePath>
     </AppxPackagedFile>
     <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\Assets\Mesh\ZICO.babylon">
       <PackagePath>Assets\Mesh\ZICO.babylon</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\Assets\Mesh\MONKE2.babylon">
+      <PackagePath>Assets\Mesh\MONKE2.babylon</PackagePath>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\monkey.babylon">
+      <PackagePath>monkey.babylon</PackagePath>
     </AppxPackagedFile>
     <AppxPackagedFile Include="D:\School\GameEngine3D\GameEngine3D\Properties\Default.rd.xml">
       <PackagePath>Properties\Default.rd.xml</PackagePath>
