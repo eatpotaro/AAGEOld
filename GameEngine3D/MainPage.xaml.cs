@@ -3,16 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using System.Windows.Input;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.Gaming.Input.Custom;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -44,11 +48,15 @@ namespace GameEngine3D
             device = new Device(bmp);
             
             meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
-            meshes[0].Position += new Vector3(-3f, 0f, 0f);
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
             meshes[0].Position += new Vector3(0f, 0f, 0f);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
+            meshes[1].Position += new Vector3(3f, 0f, 0f);
+            meshes[1].Physics.ColliderFixValue = 0;
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
+            meshes[2].Position += new Vector3(-3f, 0f, 0f);
+            meshes[2].Physics.ColliderFixValue = 0;
 
-            player.Position = new Vector3(0, 0, 20f);
+            player.Position = new Vector3(20f, 0, 40f);
             mera.Position = player.Position;
 
             // Registering to the XAML rendering loop
@@ -60,12 +68,12 @@ namespace GameEngine3D
         {
             device.Clear(60, 60, 60, 255);
 
-            foreach(Mesh m in meshes)
+            Update();
+
+            foreach (Mesh m in meshes)
             {
                 m.Physics.UpdatePhysics();
             }
-
-            Update();
 
             // Doing the various matrix operations
             device.Render(mera, meshes);
@@ -89,8 +97,28 @@ namespace GameEngine3D
         {
         }
 
+        private bool GetSpaceDown()
+        {
+            return Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Space).HasFlag(CoreVirtualKeyStates.Down);
+        }
+        private bool GetMouse0Down()
+        {
+            return Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.LeftButton).HasFlag(CoreVirtualKeyStates.Down);
+        }
+
         void Update()
         {
+            lights[0].RIntesnsity = 1;
+            lights[0].GIntesnsity = 1;
+            lights[0].BIntesnsity = 1;
+
+            if (meshes[1].Collider.Colliding)
+            {
+                lights[0].RIntesnsity = 0;
+                lights[0].GIntesnsity = 1;
+                lights[0].BIntesnsity = 0;
+            }
+
             mera.Position += new Vector3(0f, 0f, 0f);
 
             if (meshes != null)
@@ -104,12 +132,16 @@ namespace GameEngine3D
 
             if(meshes[0].Position.Y <= -5)
             {
-                meshes[0].Position = new Vector3(-3f, 20f, 0f);
+                meshes[0].Position = new Vector3(-3f, 20f, -0f);
             }
-            //DrawLine(0, 0, 0, 2, 2, 0, Color.GreenYellow);
-        }
 
-            
+            meshes[0].Position += new Vector3(0.05f * (GetSpaceDown() ? -1 : GetMouse0Down() ? 1 : 0), 0, 0);
+
+            DrawLine(meshes[0].Collider.MinPos, meshes[0].Collider.MaxPos, Color.Red);
+            DrawLine(-meshes[0].Position, -meshes[0].Position, Color.Blue);
+            DrawLine((-meshes[0].Position  - meshes[0].Collider.MinPos) / 2, (-meshes[0].Position - meshes[0].Collider.MinPos + new Vector3(0, 1, 0)) / 2, Color.Green);
+            DrawLine((-meshes[0].Position - meshes[0].Collider.MaxPos) / 2, (-meshes[0].Position - meshes[0].Collider.MaxPos + new Vector3(0, 1, 0)) / 2, Color.Green);
+        }
 
         void DrawLine(float x0, float y0, float z0, float x1, float y1, float z1, Color4 color)
         {
@@ -128,6 +160,26 @@ namespace GameEngine3D
             var transformMatrixend = worldMatrix * viewMatrix * projectionMatrix;
 
             Vector2 PixelEndPlace = device.Project2D(new Vector3(x1, y1, z1), transformMatrixend);
+
+            device.DrawBline(PixelPlace, PixelEndPlace, color);
+        }
+        void DrawLine(Vector3 pos0, Vector3 pos1, Color4 color)
+        {
+            var viewMatrix = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
+            var projectionMatrix = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
+            var worldMatrix = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(pos0);
+
+            var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+
+            Vector2 PixelPlace = device.Project2D(pos0, transformMatrix);
+
+            var viewMatrixend = SharpDX.Matrix.LookAtLH(mera.Position, mera.Target, Vector3.UnitY);
+            var projectionMatrixend = SharpDX.Matrix.PerspectiveFovRH(0.78f, (float)640 / 480, 0.01f, 1.0f);
+            var worldMatrixend = SharpDX.Matrix.RotationYawPitchRoll(0, 0, 0) * SharpDX.Matrix.Translation(pos1);
+
+            var transformMatrixend = worldMatrix * viewMatrix * projectionMatrix;
+
+            Vector2 PixelEndPlace = device.Project2D(pos1, transformMatrixend);
 
             device.DrawBline(PixelPlace, PixelEndPlace, color);
         }

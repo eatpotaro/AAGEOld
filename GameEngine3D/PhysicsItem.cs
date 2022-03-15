@@ -1,7 +1,9 @@
 ﻿using SharpDX;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,19 +11,19 @@ namespace GameEngine3D
 {
     public class PhysicsItem
     {
-        public BoxCollider Collider { get; set; }
         public Mesh Mesh { get; set; }
         public Vector3 Velocity { get; set; }
         private Vector3 GravityVelocity { get; set; }
         public bool UseGravity { get; set; }
         public float Mass { get; set; }
         public float GravityForce { get; set; }
-
+        public float ColliderFixValue { get; set; }
         public PhysicsItem(bool grav, float mass)
         {
+            ColliderFixValue = 1f;
             UseGravity = grav;
             Mass = mass;
-            GravityForce = -9.81f;
+            GravityForce = -9.81f; 
         }
 
         private void ApplyForces()
@@ -37,7 +39,7 @@ namespace GameEngine3D
         }
         private void UpdateVelocity()
         {
-            Velocity = Vector3.Zero;
+            Velocity = new Vector3(MathF.Sqrt(Velocity.X), MathF.Sqrt(Velocity.Y), MathF.Sqrt(Velocity.Z));
         }
 
         public void UpdatePhysics()
@@ -45,8 +47,8 @@ namespace GameEngine3D
             ApplyForces();
             UpdateTransform();
             UpdateVelocity();
-            //Collider.UpdateSize(Mesh);
-            //Collider.CheckCollisions(Mesh);
+            Mesh.Collider.UpdateSize(Mesh);
+            Mesh.Collider.CheckCollisions(Mesh.Meshes.ToArray());
         }
     }
 }

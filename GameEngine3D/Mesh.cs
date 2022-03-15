@@ -19,21 +19,26 @@ namespace GameEngine3D
 
     public class Mesh
     {
+        public static List<Mesh> Meshes { get; set; }
         public string Name { get; set; }
         public Vertex[] Vertices { get; private set; }
         public Face[] Faces { get; set; }
         public Vector3 Position { get; set; }
         public Vector3 Rotation { get; set; }
         public PhysicsItem Physics { get; set; }
+        public BoxCollider Collider { get; set; }
         public Texture Texture { get; set; }
 
         public Mesh(string name, int verticesCount, int facesCount, PhysicsItem p)
         {
+            if (Meshes == null) Meshes = new List<Mesh>();
             Vertices = new Vertex[verticesCount];
             Faces = new Face[facesCount];
             Name = name;
             Physics = p;
             p.Mesh = this;
+            Collider = new BoxCollider(this);
+            Meshes.Add(this);
         }
     }
 
