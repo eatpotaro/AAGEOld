@@ -58,4 +58,3 @@ D:\School\GameEngine3D\GameEngine3D\obj\x86\Debug\ProjectArchitectures.txt
 D:\School\GameEngine3D\GameEngine3D\obj\x86\Debug\.winmd_cache\$Microsoft.UI.Xaml.Markup.winmd_637424779200000000.json
 D:\School\GameEngine3D\GameEngine3D\bin\x86\Debug\Assets\Textures\Suzanne.jpg
 D:\School\GameEngine3D\GameEngine3D\bin\x86\Debug\Assets\Mesh\MONKE2.babylon
-D:\School\GameEngine3D\GameEngine3D\bin\x86\Debug\monkey.babylon

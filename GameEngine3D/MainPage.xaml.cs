@@ -47,13 +47,13 @@ namespace GameEngine3D
 
             device = new Device(bmp);
             
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\ZICO.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512, "ball");
             meshes[0].Position += new Vector3(0f, 0f, 0f);
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
-            meshes[1].Position += new Vector3(3f, 0f, 0f);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512, "m");
+            meshes[1].Position += new Vector3(7f, 0f, 0f);
             meshes[1].Physics.ColliderFixValue = 0;
-            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512);
-            meshes[2].Position += new Vector3(-3f, 0f, 0f);
+            meshes = await device.LoadJSONFileAsync(@"Assets\Mesh\MONKE2.babylon", meshes, false, @"Assets\Textures\Suzanne.jpg", 512, 512, "m");
+            meshes[2].Position += new Vector3(-7f, 0f, 0f);
             meshes[2].Physics.ColliderFixValue = 0;
 
             player.Position = new Vector3(20f, 0, 40f);
@@ -97,26 +97,19 @@ namespace GameEngine3D
         {
         }
 
-        private bool GetSpaceDown()
-        {
-            return Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.Space).HasFlag(CoreVirtualKeyStates.Down);
-        }
-        private bool GetMouse0Down()
-        {
-            return Window.Current.CoreWindow.GetKeyState(Windows.System.VirtualKey.LeftButton).HasFlag(CoreVirtualKeyStates.Down);
-        }
-
         void Update()
         {
-            lights[0].RIntesnsity = 1;
-            lights[0].GIntesnsity = 1;
-            lights[0].BIntesnsity = 1;
-
-            if (meshes[1].Collider.Colliding)
+            Ray ray = new Ray(new Vector3(0, 5, 0), 10, 5, Vector3.Down);
+            ray.Casts(ray, Mesh.Meshes);
+            if (ray.Collides)
             {
-                lights[0].RIntesnsity = 0;
-                lights[0].GIntesnsity = 1;
                 lights[0].BIntesnsity = 0;
+                lights[0].RIntesnsity = 0;
+            }
+            else
+            {
+                lights[0].BIntesnsity = 1;
+                lights[0].RIntesnsity = 1;
             }
 
             mera.Position += new Vector3(0f, 0f, 0f);
@@ -130,17 +123,13 @@ namespace GameEngine3D
                 }
             }
 
-            if(meshes[0].Position.Y <= -5)
+            if (meshes[0].Position.Y <= -5)
             {
                 meshes[0].Position = new Vector3(-3f, 20f, -0f);
             }
 
-            meshes[0].Position += new Vector3(0.05f * (GetSpaceDown() ? -1 : GetMouse0Down() ? 1 : 0), 0, 0);
-
-            DrawLine(meshes[0].Collider.MinPos, meshes[0].Collider.MaxPos, Color.Red);
-            DrawLine(-meshes[0].Position, -meshes[0].Position, Color.Blue);
-            DrawLine((-meshes[0].Position  - meshes[0].Collider.MinPos) / 2, (-meshes[0].Position - meshes[0].Collider.MinPos + new Vector3(0, 1, 0)) / 2, Color.Green);
-            DrawLine((-meshes[0].Position - meshes[0].Collider.MaxPos) / 2, (-meshes[0].Position - meshes[0].Collider.MaxPos + new Vector3(0, 1, 0)) / 2, Color.Green);
+            meshes[0].Position += new Vector3(0.05f * (Input.GetKeyDown(Windows.System.VirtualKey.Space) ? -1 : Input.GetKeyDown(Windows.System.VirtualKey.LeftButton) ? 1 : 0), 0, 0);
+            meshes[2].Position += new Vector3(0.05f * (Input.GetKeyDown(Windows.System.VirtualKey.A) ? -1 : Input.GetKeyDown(Windows.System.VirtualKey.D) ? 1 : 0), 0, 0);
         }
 
         void DrawLine(float x0, float y0, float z0, float x1, float y1, float z1, Color4 color)

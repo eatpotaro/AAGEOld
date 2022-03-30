@@ -72,13 +72,8 @@ namespace GameEngine3D
                     break;
                 }
 
-                meshes[i].Collider.MinPos /= 2;
-                meshes[i].Collider.MaxPos /= 2;
                 meshes[i].Collider.MinPos += meshes[i].Position;
                 meshes[i].Collider.MaxPos += meshes[i].Position;
-
-                this.MinPos /= 2;
-                this.MaxPos /= 2;
                 this.MinPos += ThisMesh.Position;
                 this.MaxPos += ThisMesh.Position;
 
@@ -90,11 +85,8 @@ namespace GameEngine3D
                     Colliding = true;
                 }
 
-                meshes[i].Collider.MinPos /= 0.5f;
-                meshes[i].Collider.MaxPos /= 0.5f;
-
-                this.MinPos /= 0.5f;
-                this.MaxPos /= 0.5f;
+                this.UpdateSize(ThisMesh);
+                meshes[i].Collider.UpdateSize(meshes[i]);
             }
         }
 
@@ -124,35 +116,35 @@ namespace GameEngine3D
             float Y = m.Position.Y;
             float Z = m.Position.Z;
 
-            if (Side.X == 1)
-            {
-                X = MaxPos.X - (m.Collider.MinPos.X - m.Position.X);
-                //new posistion of the x for the other mesh is now the maximum position of this mesh;
-            }
             if (Side.X == 1 && Direction.X <= 0)
             {
                 X = MinPos.X - (m.Collider.MaxPos.X - m.Position.X);
             }
-
-            if (Side.Y == 1)
+            else if (Side.X == 1)
             {
-                Y = MaxPos.Y - (m.Collider.MinPos.Y - m.Position.Y);
+                X = MaxPos.X - (m.Collider.MinPos.X - m.Position.X);
                 //new posistion of the x for the other mesh is now the maximum position of this mesh;
             }
+
             if (Side.Y == 1 && Direction.X <= 0)
             {
                 Y = MinPos.Y - (m.Collider.MaxPos.Y - m.Position.Y);
             }
+            else if (Side.Y == 1)
+            {
+                Y = MaxPos.Y - (m.Collider.MinPos.Y - m.Position.Y);
+                //new posistion of the x for the other mesh is now the maximum position of this mesh;
+            }
 
-            if (Side.Z == 1)
+
+            if (Side.Z == 1 && Direction.X <= 0)
+            {
+                Z = MinPos.Z - (m.Collider.MaxPos.Z - m.Position.Z);
+            }
+            else if (Side.Z == 1)
             {
                 Z = MaxPos.Z - (m.Collider.MinPos.Z - m.Position.Z);
                 //new posistion of the x for the other mesh is now the maximum position of this mesh;
-            }
-            if (Side.Z == 1 && Direction.X <= 0)
-
-            {
-                Z = MinPos.Z - (m.Collider.MaxPos.Z - m.Position.Z);
             }
 
             m.Position = new Vector3(X, Y, Z);
@@ -161,6 +153,11 @@ namespace GameEngine3D
         public bool Intersect(BoxCollider a, BoxCollider b)
         {
             return ((a.MinPos.X <= b.MaxPos.X && a.MaxPos.X >= b.MinPos.X) && (a.MinPos.Y <= b.MaxPos.Y && a.MaxPos.Y >= b.MinPos.Y) && (a.MinPos.Z <= b.MaxPos.Z && a.MaxPos.Z >= b.MinPos.Z));
+        }
+
+        public bool PointIntersect(Vector3 a, BoxCollider b)
+        {
+            return (a.X < b.MaxPos.X && a.X > b.MinPos.X) && (a.Y < b.MaxPos.Y && a.Y > b.MinPos.Y) && (a.Z < b.MaxPos.Z && a.Z > b.MinPos.Z);
         }
     }
 }

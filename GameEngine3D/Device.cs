@@ -595,6 +595,108 @@ namespace GameEngine3D
             }
             return meshes.ToArray();
         }
+        public async Task<Mesh[]> LoadJSONFileAsync(string fileName, Mesh[] ListOfMeshes, bool grav, string tFilePath, int width, int height, string name)
+        {
+            var meshes = ListOfMeshes.ToList<Mesh>();
+            var materials = new Dictionary<String, Material>();
+            var file = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(fileName);
+            var data = await Windows.Storage.FileIO.ReadTextAsync(file);
+            dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(data);
+
+            for (var materialIndex = 0; materialIndex < jsonObject.materials.Count; materialIndex++)
+            {
+                var material = new Material();
+                material.Name = jsonObject.materials[materialIndex].name.Value;
+                material.ID = jsonObject.materials[materialIndex].id.Value;
+                if (jsonObject.materials[materialIndex].diffuseTexture != null)
+                    material.DiffuseTextureName = jsonObject.materials[materialIndex].diffuseTexture.name.Value;
+
+                materials.Add(material.ID, material);
+            }
+
+            for (var meshIndex = 0; meshIndex < jsonObject.meshes.Count; meshIndex++)
+            {
+                var verticesArray = jsonObject.meshes[meshIndex].vertices;
+                // Faces
+                var indicesArray = jsonObject.meshes[meshIndex].indices;
+
+                var uvCount = jsonObject.meshes[meshIndex].uvCount.Value;
+                var verticesStep = 1;
+
+                // Depending of the number of texture's coordinates per vertex
+                // we're jumping in the vertices array  by 6, 8 & 10 windows frame
+                switch ((int)uvCount)
+                {
+                    case 0:
+                        verticesStep = 6;
+                        break;
+                    case 1:
+                        verticesStep = 8;
+                        break;
+                    case 2:
+                        verticesStep = 10;
+                        break;
+                }
+
+                // the number of interesting vertices information for us
+                var verticesCount = verticesArray.Count / verticesStep;
+                // number of faces is logically the size of the array divided by 3 (A, B, C)
+                var facesCount = indicesArray.Count / 3;
+                var mesh = new Mesh(jsonObject.meshes[meshIndex].name.Value, verticesCount, facesCount, new PhysicsItem(grav, 1f));
+
+                // Filling the Vertices array of our mesh first
+                for (var index = 0; index < verticesCount; index++)
+                {
+                    var x = (float)verticesArray[index * verticesStep].Value;
+                    var y = (float)verticesArray[index * verticesStep + 1].Value;
+                    var z = (float)verticesArray[index * verticesStep + 2].Value;
+                    // Loading the vertex normal exported by Blender
+                    var nx = (float)verticesArray[index * verticesStep + 3].Value;
+                    var ny = (float)verticesArray[index * verticesStep + 4].Value;
+                    var nz = (float)verticesArray[index * verticesStep + 5].Value;
+
+                    mesh.Vertices[index] = new Vertex
+                    {
+                        Coordinates = new Vector3(x, y, z),
+                        Normal = new Vector3(nx, ny, nz)
+                    };
+
+                    if (uvCount > 0)
+                    {
+                        // Loading the texture coordinates
+                        float u = (float)verticesArray[index * verticesStep + 6].Value;
+                        float v = (float)verticesArray[index * verticesStep + 7].Value;
+                        mesh.Vertices[index].TextureCoordinates = new Vector2(u, v);
+                    }
+                }
+
+                // Then filling the Faces array
+                for (var index = 0; index < facesCount; index++)
+                {
+                    var a = (int)indicesArray[index * 3].Value;
+                    var b = (int)indicesArray[index * 3 + 1].Value;
+                    var c = (int)indicesArray[index * 3 + 2].Value;
+                    mesh.Faces[index] = new Face { A = a, B = b, C = c };
+                }
+
+                // Getting the position you've set in Blender
+                var position = jsonObject.meshes[meshIndex].position;
+                mesh.Position = new Vector3((float)position[0].Value, (float)position[1].Value, (float)position[2].Value);
+
+                if (uvCount > 0)
+                {
+                    // Texture
+                    var meshTextureID = jsonObject.meshes[meshIndex].materialId.Value;
+                    var meshTextureName = materials[meshTextureID].DiffuseTextureName;
+                    mesh.Texture = new Texture(tFilePath, width, height);
+                }
+
+                mesh.Name = name;
+
+                meshes.Add(mesh);
+            }
+            return meshes.ToArray();
+        }
 
         public Vector3[] Bresenham3D(float x1, float y1, float z1, float x2, float y2, float z2)
         {
